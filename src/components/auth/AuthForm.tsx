@@ -23,8 +23,6 @@ export default function Form({ type }: { type: 'login' | 'register' }) {
       .catch(() => setIsverified(false));
   }
 
-  console.log(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY);
-
   return (
     <form
       onSubmit={(e) => {
