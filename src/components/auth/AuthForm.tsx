@@ -1,15 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import LoadingDots from '@/components/placeholder/LoadingDots';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import ReCAPTCHA from 'react-google-recaptcha';
+import { verifyCaptcha } from './verifyCaptcha';
 
 export default function Form({ type }: { type: 'login' | 'register' }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const [isVerified, setIsverified] = useState<boolean>(false);
+
+  async function handleCaptchaSubmission(token: string | null) {
+    // Server function to verify captcha
+    await verifyCaptcha(token)
+      .then(() => setIsverified(true))
+      .catch(() => setIsverified(false));
+  }
+
+  console.log(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY);
 
   return (
     <form
@@ -87,16 +101,23 @@ export default function Form({ type }: { type: 'login' | 'register' }) {
           className='block w-full px-3 py-2 mt-1 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:border-black focus:outline-none focus:ring-black sm:text-sm'
         />
       </div>
+      <ReCAPTCHA
+        sitekey={`${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
+        ref={recaptchaRef}
+        onChange={handleCaptchaSubmission}
+      />
       <button
-        disabled={loading}
+        disabled={loading || !isVerified}
         className={`${
           loading
             ? 'cursor-not-allowed border-gray-200 bg-gray-100'
             : 'border-black bg-black text-white hover:bg-white hover:text-black'
-        } flex h-10 w-full items-center justify-center rounded-md border text-sm transition-all focus:outline-none`}
+        } flex disabled:bg-gray-300 disabled:pointer-events-none disabled: border-gray-300 h-10 w-full items-center justify-center rounded-md border text-sm transition-all focus:outline-none`}
       >
         {loading ? (
           <LoadingDots color='#808080' />
+        ) : !isVerified ? (
+          <p>reCAPTCHA Onayı Gereklidir</p>
         ) : (
           <p>{type === 'login' ? 'Giriş Yap' : 'Kaydol'}</p>
         )}
@@ -105,7 +126,7 @@ export default function Form({ type }: { type: 'login' | 'register' }) {
         <p className='text-sm text-center text-gray-600'>
           {`Hesabınız yok mu? `}
           <Link href='/kayit' className='font-semibold text-gray-800'>
-            Üye ol
+            Üye Ol
           </Link>{' '}
         </p>
       ) : (
