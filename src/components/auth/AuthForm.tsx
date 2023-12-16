@@ -81,7 +81,6 @@ export default function Form({ type }: { type: 'login' | 'register' }) {
           id='email'
           name='email'
           type='email'
-          placeholder='panic@thedis.co'
           autoComplete='email'
           required
           className='block w-full px-3 py-2 mt-1 placeholder-gray-400 border border-gray-300 rounded-md shadow-sm appearance-none focus:border-black focus:outline-none focus:ring-black sm:text-sm'
@@ -114,26 +113,24 @@ export default function Form({ type }: { type: 'login' | 'register' }) {
       >
         {loading ? (
           <LoadingDots color='#808080' />
-        ) : !isVerified ? (
-          <p>reCAPTCHA Onayı Gereklidir</p>
         ) : (
           <p>{type === 'login' ? 'Giriş Yap' : 'Kaydol'}</p>
         )}
       </button>
       {type === 'login' ? (
-        <p className='text-sm text-center text-gray-600'>
+        <div className='text-sm text-center text-gray-600'>
           {`Hesabınız yok mu? `}
           <Link href='/kayit' className='font-semibold text-gray-800'>
             Üye Ol
           </Link>{' '}
-        </p>
+        </div>
       ) : (
-        <p className='text-sm text-center text-gray-600'>
+        <div className='text-sm text-center text-gray-600'>
           {`Hesabınız var mı? `}
           <Link href='/giris' className='font-semibold text-gray-800'>
             Giriş Yap
           </Link>{' '}
-        </p>
+        </div>
       )}
     </form>
   );

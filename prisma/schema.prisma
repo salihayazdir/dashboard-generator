@@ -1,20 +1,55 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider          = "postgresql"
-  url               = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl         = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
-  shadowDatabaseUrl = env("POSTGRES_URL_NON_POOLING") // used for migrations
+  url               = env("POSTGRES_PRISMA_URL")
+  directUrl         = env("POSTGRES_URL_NON_POOLING")
+  shadowDatabaseUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  email     String  @unique
-  password  String
-  name      String?
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  password String
+  name     String?
+  dashboards Dashboard[]
+  dataSources DataSource[]
+}
+
+model Dashboard {
+  id        Int       @id @default(autoincrement())
+  name      String  @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  owner     User      @relation(fields: [ownerId], references: [id])
+  ownerId   Int
+  elements  DashboardElement[]
+  dataSource DataSource  @relation(fields: [dataSourceId], references: [id])
+  dataSourceId Int
+}
+
+model DashboardElement {
+  id          Int       @id @default(autoincrement())
+  name        String
+  type        String
+  query      String
+  fields     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id])
+  dashboardId Int
+}
+
+model DataSource {
+  id        Int       @id @default(autoincrement())
+  name      String  @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  connectionString String
+  schema String?
+  owner     User      @relation(fields: [ownerId], references: [id])
+  ownerId   Int
+  dashboards Dashboard[]
 }
