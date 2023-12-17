@@ -26,7 +26,7 @@ model Dashboard {
   owner     User      @relation(fields: [ownerId], references: [id])
   ownerId   Int
   elements  DashboardElement[]
-  dataSource DataSource  @relation(fields: [dataSourceId], references: [id])
+  dataSource DataSource  @relation(fields: [dataSourceId], references: [id], onDelete: Cascade)
   dataSourceId Int
 }
 

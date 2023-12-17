@@ -36,12 +36,15 @@ export function DashboardSelector({ dashboards, defaultId }: Props) {
           variant='outline'
           role='combobox'
           aria-expanded={open}
-          className='w-[200px] justify-between'
+          className={cn(
+            'w-[200px] justify-between',
+            !value && 'text-gray-600 font-normal'
+          )}
         >
           {value
             ? dashboards.find((dashboard) => dashboard.id.toString() === value)
                 ?.name
-            : 'Dashboard'}
+            : "Dashboard'a Git"}
           <CaretSortIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
@@ -74,7 +77,7 @@ export function DashboardSelector({ dashboards, defaultId }: Props) {
             ))}
           </CommandGroup>
           <CommandGroup>
-            <AddDashboard />
+            <AddDashboard className='flex items-center gap-3 w-full' />
           </CommandGroup>
         </Command>
       </PopoverContent>

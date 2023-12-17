@@ -1,11 +1,11 @@
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
-import { authOptions } from '../api/auth/[...nextauth]/route';
 import AddDataSource from '@/components/dialog/AddDataSource';
 import DataSourceSettings from '@/components/dialog/DataSourceSettings';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowTopRightIcon, DashboardIcon } from '@radix-ui/react-icons';
+import authOptions from '@/app/api/auth/[...nextauth]/options';
 
 export default async function VeriKaynaklari() {
   const session = await getServerSession(authOptions);
@@ -39,7 +39,7 @@ export default async function VeriKaynaklari() {
                 </div>
               </div>
               <h3 className='px-4 mt-2 text-sm text-gray-400 font-medium'>
-                Bağlı Dashboard'lar
+                {`Bağlı Dashboard'lar`}
               </h3>
               <div className='flex flex-wrap gap-4 p-4 pt-2'>
                 {dataSource.dashboards.map((dashboard) => {

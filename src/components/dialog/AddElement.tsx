@@ -144,7 +144,7 @@ export default function AddElement({ dashboardId }: Props) {
       <DialogContent className='w-auto max-w-none'>
         <DialogHeader>
           <DialogTitle>Element Ekle</DialogTitle>
-          <DialogDescription>Dashboard'a bir element ekleyin</DialogDescription>
+          <DialogDescription>{`Dashboard'a bir element ekleyin`}</DialogDescription>
         </DialogHeader>
 
         <div className='flex gap-8 mt-4 divide-x divide-slate-200'>
@@ -383,7 +383,7 @@ export default function AddElement({ dashboardId }: Props) {
                       required
                       placeholder='Elemente bir isim verin.'
                     />
-                    <Button type='submit'>Dashboard'a Ekle</Button>
+                    <Button type='submit'>{`Dashboard'a Ekle`}</Button>
                   </div>
                 </form>
               </>

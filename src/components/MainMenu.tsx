@@ -50,7 +50,7 @@ export default function MainMenu() {
             <span
               className={cn(pathIsDashboard && 'text-gray-900 font-semibold')}
             >
-              Dashboard'lar
+              {`Dashboard'lar`}
             </span>
             <ArrowRightIcon
               className={cn(

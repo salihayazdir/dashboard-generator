@@ -42,8 +42,8 @@ export default function AddDataSource() {
         <DialogHeader>
           <DialogTitle>Veri Kaynağı Ekle</DialogTitle>
           <DialogDescription>
-            Dashboard'larınızda kullanabileceğiniz bir PostgreSQL veri tabanı
-            tanımlayın.
+            {`Dashboard'larınızda kullanabileceğiniz bir PostgreSQL veri tabanı
+            tanımlayın.`}
           </DialogDescription>
         </DialogHeader>
         <div className='flex flex-col gap-4'>

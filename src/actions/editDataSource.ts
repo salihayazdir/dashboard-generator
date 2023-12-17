@@ -61,10 +61,17 @@ export const editDataSource = async (
     };
   } catch (e: any) {
     console.log(e);
+
+    const message = () => {
+      if (e?.message.includes('Unique constraint'))
+        return 'Bu isimde farklı bir veri kaynağı bulunuyor.';
+
+      return `Hata: ${e?.message}`;
+    };
     return {
       success: false,
       tried: true,
-      message: `Veri kaynağı güncellenemedi. Hata: ${e?.message}`,
+      message: `Veri kaynağı güncellenemedi. ${message()}`,
     };
   }
 };

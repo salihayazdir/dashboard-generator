@@ -1,10 +1,9 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import authOptions from '@/app/api/auth/[...nextauth]/options';
 import { DashboardSelector } from '@/components/DashboardSelector';
 import DashboardElement from '@/components/dashboard/DashboardElement';
 import AddElement from '@/components/dialog/AddElement';
-import { Button } from '@/components/ui/button';
+import DashboardSettings from '@/components/dialog/DashboardSettings';
 import { prisma } from '@/lib/prisma';
-import { GearIcon } from '@radix-ui/react-icons';
 import { getServerSession } from 'next-auth';
 
 export default async function Dashboard({
@@ -17,6 +16,13 @@ export default async function Dashboard({
   const dashboards = await prisma.dashboard.findMany({
     where: {
       ownerId: parseInt(session?.user?.id ?? '0'),
+    },
+    include: {
+      dataSource: {
+        select: {
+          name: true,
+        },
+      },
     },
     orderBy: { id: 'asc' },
   });
@@ -42,9 +48,7 @@ export default async function Dashboard({
                 dashboards={dashboards}
                 defaultId={dashboard.id}
               />
-              <Button variant='ghost' size={'icon'}>
-                <GearIcon className='h-4 w-4' />
-              </Button>
+              <DashboardSettings dashboard={dashboard} />
             </div>
             <AddElement dashboardId={dashboard.id} />
           </div>
@@ -55,7 +59,12 @@ export default async function Dashboard({
           </div>
         </>
       ) : (
-        <div>Dashboard bulunamadı</div>
+        <div className='min-h-screen flex items-center flex-col px-10 py-20 gap-6'>
+          <h1 className='text-xl font-medium text-gray-800'>
+            Dashboard Bulunamadı
+          </h1>
+          <DashboardSelector dashboards={dashboards} />
+        </div>
       )}
     </>
   );

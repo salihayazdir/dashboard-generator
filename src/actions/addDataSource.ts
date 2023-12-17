@@ -51,14 +51,20 @@ export const addDataSource = async (prevState: any, formData: FormData) => {
     return {
       success: true,
       tried: true,
-      message: `Veri kaynağı başarıyla oluşturuldu. ID: ${createdDataSource.id}`,
+      message: `Veri kaynağı oluşturuldu. ID: ${createdDataSource.id}`,
     };
   } catch (e: any) {
     console.log(e);
+    const message = () => {
+      if (e?.message.includes('Unique constraint'))
+        return 'Bu isimde farklı bir veri kaynağı bulunuyor.';
+
+      return `Hata: ${e?.message}`;
+    };
     return {
       success: false,
       tried: true,
-      message: `Veri kaynağı oluşturulamadı. Hata: ${e?.message}`,
+      message: `Veri kaynağı oluşturulamadı. ${message()}`,
     };
   }
 };
