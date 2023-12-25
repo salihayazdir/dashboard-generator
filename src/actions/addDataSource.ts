@@ -1,5 +1,6 @@
 'use server';
 
+import authOptions from '@/app/api/auth/[...nextauth]/options';
 import { getSchemaQuery } from '@/lib/getSchemaQuery';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
@@ -15,7 +16,7 @@ export const addDataSource = async (prevState: any, formData: FormData) => {
   });
 
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session) {
       throw new Error('Kullanıcı bulunamadı.');
     }

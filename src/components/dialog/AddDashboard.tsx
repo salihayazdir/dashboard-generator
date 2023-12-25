@@ -39,7 +39,7 @@ export default function AddDashboard(buttonProps: ButtonProps) {
             buttonProps.children
           ) : (
             <>
-              <PlusIcon className='h-4 w-4' />
+              <PlusIcon className='h-4 w-4 text-yesil' />
               <span>Dashboard Ekle</span>
             </>
           )}
@@ -88,7 +88,7 @@ export default function AddDashboard(buttonProps: ButtonProps) {
               <Link href={`/dashboard/${formState?.dashboardId}`}>
                 <Button variant='outline' className='w-full'>
                   {`Dashboard'a Git`}
-                  <ArrowRightIcon className='h-4 w-4 ml-3' />
+                  <ArrowRightIcon className='h-4 w-4 ml-3 text-yesil' />
                 </Button>
               </Link>
             ) : null}

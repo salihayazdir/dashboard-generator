@@ -25,7 +25,7 @@ export default function DashboardBarChart({ data }: Props) {
       categories={categories}
       colors={['blue']}
       valueFormatter={valueFormatter}
-      yAxisWidth={48}
+      yAxisWidth={50}
     />
   );
 }

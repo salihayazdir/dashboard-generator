@@ -20,13 +20,13 @@ model User {
 
 model Dashboard {
   id        Int       @id @default(autoincrement())
-  name      String  @unique
+  name      String    @unique
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   owner     User      @relation(fields: [ownerId], references: [id])
   ownerId   Int
   elements  DashboardElement[]
-  dataSource DataSource  @relation(fields: [dataSourceId], references: [id], onDelete: Cascade)
+  dataSource DataSource  @relation(fields: [dataSourceId], references: [id])
   dataSourceId Int
 }
 
@@ -34,11 +34,13 @@ model DashboardElement {
   id          Int       @id @default(autoincrement())
   name        String
   type        String
-  query      String
-  fields     String?
+  query       String
+  fields      String?
+  widht       Int       @default(1)
+  height      Int       @default(1)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  dashboard   Dashboard @relation(fields: [dashboardId], references: [id])
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id],  onDelete: Cascade)
   dashboardId Int
 }
 
@@ -48,7 +50,7 @@ model DataSource {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   connectionString String
-  schema String?
+  schema    String
   owner     User      @relation(fields: [ownerId], references: [id])
   ownerId   Int
   dashboards Dashboard[]

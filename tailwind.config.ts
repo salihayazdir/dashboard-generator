@@ -25,6 +25,7 @@ module.exports = {
         sans: ['var(--font-geist-sans)'],
       },
       colors: {
+        yesil: '#00E585',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

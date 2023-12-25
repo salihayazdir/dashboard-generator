@@ -1,5 +1,6 @@
 'use server';
 
+import authOptions from '@/app/api/auth/[...nextauth]/options';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { revalidatePath } from 'next/cache';
@@ -8,7 +9,7 @@ export const addDashboard = async (prevState: any, formData: FormData) => {
   const dataSourceId = Number(formData.get('selectedDataSourceId') as string);
 
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session) {
       throw new Error('Kullanıcı bulunamadı.');

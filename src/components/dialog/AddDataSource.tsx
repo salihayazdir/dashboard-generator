@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button, ButtonProps } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,7 @@ import { addDataSource } from '@/actions/addDataSource';
 import { SubmitButton } from '../SubmitButton';
 import useTestDbConnection from '../TestDbConnection';
 
-export default function AddDataSource() {
+export default function AddDataSource({ ...props }: ButtonProps) {
   const { TestDbConnectionButton, connectionTest, setConnectionTest } =
     useTestDbConnection({});
 
@@ -33,9 +33,15 @@ export default function AddDataSource() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>
-          <PlusIcon className='w-4 h-4 mr-2' />
-          <span>Veri Kaynağı Ekle</span>
+        <Button {...props}>
+          {props.children ? (
+            props.children
+          ) : (
+            <>
+              <PlusIcon className='w-4 h-4 mr-2 text-yesil' />
+              <span>Veri Kaynağı Ekle</span>
+            </>
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent forceMount className='sm:max-w-[450px]'>

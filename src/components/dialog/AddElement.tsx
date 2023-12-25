@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button, ButtonProps } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import {
   ArrowRightIcon,
+  CircleBackslashIcon,
   CrossCircledIcon,
   ListBulletIcon,
   PlusIcon,
@@ -19,12 +20,10 @@ import {
 import { Textarea } from '../ui/textarea';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { ScrollArea } from '../ui/scroll-area';
 import { Label } from '../ui/label';
 import React from 'react';
 import { addElementToDashboard } from '@/actions/addElementToDashboard';
 import LoadingDots from '../placeholder/LoadingDots';
-import { Skeleton } from '../ui/skeleton';
 import { cn } from '@/lib/utils';
 import DashboardTable from '../dashboard/DashboardTable';
 import DashboardBarChart from '../dashboard/DashboardBarChart';
@@ -44,12 +43,22 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../ui/accordion';
+import { useFormState } from 'react-dom';
+import { SubmitButton } from '../SubmitButton';
+import ElementPlaceholder from '../placeholder/ElementPlaceholder';
+import { ScrollArea, ScrollBar } from '../ui/scroll-area';
+import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
 
 type Props = {
   dashboardId: number;
-};
+  dataSourceId: number;
+} & ButtonProps;
 
-export default function AddElement({ dashboardId }: Props) {
+export default function AddElement({
+  dashboardId,
+  dataSourceId,
+  ...props
+}: Props) {
   const [originalData, setOriginalData] = useState<{
     result: any[];
     query: string;
@@ -60,6 +69,14 @@ export default function AddElement({ dashboardId }: Props) {
     'table'
   );
 
+  const [chatMessages, setChatMessages] = useState<
+    {
+      role: 'user' | 'assistant';
+      message: string;
+      query: string;
+    }[]
+  >([]);
+
   const [fields, setFields] = useState<
     {
       enabled: boolean;
@@ -68,15 +85,42 @@ export default function AddElement({ dashboardId }: Props) {
     }[]
   >([]);
 
+  // ADD ELEMENT TO DASHBOARD - FORM ACTION //
+  const initialFormState = {
+    success: false,
+    tried: false,
+    message: null,
+  };
   const bound_addElementToDashboard = addElementToDashboard.bind(
     null,
     dashboardId
   );
+  const [addElementToDashboard_formState, addElementToDashboard_formAction] =
+    useFormState(bound_addElementToDashboard, initialFormState);
+  const handleAddElementToDashboard_formAction = (formData: FormData) => {
+    addElementToDashboard_formAction(formData);
+  };
+
+  const [showResponseMessage, setShowResponseMessage] = useState(false);
+  useEffect(() => {
+    if (addElementToDashboard_formState?.loading) setShowResponseMessage(false);
+    if (addElementToDashboard_formState?.tried) setShowResponseMessage(true);
+  }, [addElementToDashboard_formState]);
 
   const [dataIsLoading, setDataIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<undefined | string>(
     undefined
   );
+
+  const handleReset = () => {
+    setOriginalData({ result: [], query: '' });
+    setElementData([]);
+    setElementType('table');
+    setChatMessages([]);
+    setFields([]);
+    setDataIsLoading(false);
+    setErrorMessage(undefined);
+  };
 
   const generateElement = async () => {
     const prompt = promptRef.current?.value;
@@ -85,12 +129,29 @@ export default function AddElement({ dashboardId }: Props) {
     setOriginalData({ result: [], query: '' });
     setDataIsLoading(true);
     setFields([]);
+
     await axios
-      .post(`/api/mock-prompt-to-data`, {
+      .post(`/api/prompt-to-data`, {
         prompt,
-        dataSourceId: 1, // TODO
+        dataSourceId,
+        previousMessages: chatMessages,
       })
       .then((res) => {
+        setChatMessages((prev) => [
+          ...prev,
+          { role: 'user', message: `${prompt}`, query: '' },
+          {
+            role: 'assistant',
+            message: res.data?.message,
+            query: res.data?.query,
+          },
+        ]);
+        if (elementNameRef.current) {
+          elementNameRef.current.value = res.data?.title;
+        }
+        if (promptRef.current) {
+          promptRef.current.value = '';
+        }
         setOriginalData({
           result: res.data?.result,
           query: res.data?.query,
@@ -132,46 +193,111 @@ export default function AddElement({ dashboardId }: Props) {
   }, [originalData]);
 
   const promptRef = React.useRef<HTMLTextAreaElement>(null);
+  const elementNameRef = React.useRef<HTMLInputElement>(null);
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>
-          <PlusIcon className='w-4 h-4 mr-2' />
-          <span>Element Ekle</span>
+        <Button {...props}>
+          {props.children ? (
+            props.children
+          ) : (
+            <>
+              <PlusIcon className='w-4 h-4 mr-2 text-yesil' />
+              <span>Element Ekle</span>
+            </>
+          )}
         </Button>
       </DialogTrigger>
-      <DialogContent className='w-auto max-w-none'>
-        <DialogHeader>
+      <DialogContent className='w-auto max-w-none -mt-10'>
+        <DialogHeader className='flex'>
           <DialogTitle>Element Ekle</DialogTitle>
           <DialogDescription>{`Dashboard'a bir element ekleyin`}</DialogDescription>
+          <Button
+            onClick={handleReset}
+            className='absolute text-gray-500 top-2 right-12 hover:text-red-600'
+            variant='outline'
+            size='sm'
+          >
+            <CircleBackslashIcon className='h-3 w-3 mr-2' />
+            Baştan Başla
+          </Button>
         </DialogHeader>
 
         <div className='flex gap-8 mt-4 divide-x divide-slate-200'>
-          <div className='min-w-[320px] flex flex-col gap-4'>
-            <div className=''>
-              <Label htmlFor='prompt'>Açıklama</Label>
-              <Textarea
-                ref={promptRef}
-                disabled={dataIsLoading}
-                id='prompt'
-                rows={4}
-              />
+          <div className='min-w-[400px] flex flex-col gap-4 justify-between'>
+            {chatMessages.length > 0 ? (
+              <>
+                <ScrollAreaPrimitive.Root
+                  type='always'
+                  className={cn('relative overflow-hidden')}
+                >
+                  <ScrollAreaPrimitive.Viewport className='h-[380px] w-full rounded-[inherit]'>
+                    <div className=' flex flex-col-reverse justify-end gap-2'>
+                      {chatMessages
+                        .slice()
+                        .reverse()
+                        .map((message, index) => (
+                          <div
+                            key={index}
+                            className={cn('flex gap-4 ', {
+                              'justify-start': message.role === 'user',
+                              'justify-end': message.role === 'assistant',
+                            })}
+                          >
+                            <div
+                              className={cn('p-2 rounded-md w-[300px]', {
+                                'bg-slate-50': message.role === 'user',
+                                'bg-green-50': message.role === 'assistant',
+                              })}
+                            >
+                              <p className='text-sm'>{message.message}</p>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </ScrollAreaPrimitive.Viewport>
+                  <ScrollBar />
+                  <ScrollAreaPrimitive.Corner />
+                </ScrollAreaPrimitive.Root>
+              </>
+            ) : null}
+            <div className='flex flex-col gap-4'>
+              <div>
+                <Label
+                  className={cn({ hidden: chatMessages.length > 0 })}
+                  htmlFor='prompt'
+                >
+                  Açıklama
+                </Label>
+                <Textarea
+                  ref={promptRef}
+                  disabled={dataIsLoading}
+                  id='prompt'
+                  required
+                  minLength={10}
+                  placeholder={
+                    chatMessages.length > 0 ? 'Bir düzenleme önerin.' : ''
+                  }
+                  rows={chatMessages.length > 0 ? 2 : 4}
+                />
+              </div>
+              <Button disabled={dataIsLoading} onClick={generateElement}>
+                {dataIsLoading ? (
+                  <LoadingDots color='white' />
+                ) : (
+                  <>
+                    {chatMessages.length > 0 ? 'Gönder' : 'Oluştur'}
+                    <ArrowRightIcon className='w-4 h-4 ml-4' />
+                  </>
+                )}
+              </Button>
             </div>
-            <Button disabled={dataIsLoading} onClick={generateElement}>
-              {dataIsLoading ? (
-                <LoadingDots color='white' />
-              ) : (
-                <>
-                  Oluştur
-                  <ArrowRightIcon className='w-4 h-4 ml-4' />
-                </>
-              )}
-            </Button>
           </div>
 
           <div className='relative flex flex-col gap-4 pl-8'>
             <ScrollArea
+              type='always'
               className={cn('min-w-[520px] rounded-lg px-2', {
                 'max-h-[420px]': elementData.length > 0,
               })}
@@ -288,56 +414,11 @@ export default function AddElement({ dashboardId }: Props) {
               {errorMessage ? (
                 <div className='absolute flex items-center gap-4 p-2 text-sm leading-4 transform -translate-x-1/2 -translate-y-1/2 bg-opacity-50 rounded-md text-rose-700 bg-rose-100 top-1/2 left-1/2'>
                   <CrossCircledIcon className='w-10 h-10' />
-                  <span>{errorMessage}</span>
+                  <span>{JSON.stringify(errorMessage).toString()}</span>
                 </div>
               ) : null}
               {elementData.length === 0 ? (
-                <div>
-                  <div className='flex items-end w-full gap-3'>
-                    <Skeleton
-                      className={cn(
-                        'w-1/4 h-[300px] flex-1',
-                        !dataIsLoading && 'animate-none'
-                      )}
-                    />
-                    <Skeleton
-                      className={cn(
-                        'w-1/4 h-[280px] flex-1',
-                        !dataIsLoading && 'animate-none'
-                      )}
-                    />
-                    <Skeleton
-                      className={cn(
-                        'w-1/4 h-[210px] flex-1',
-                        !dataIsLoading && 'animate-none'
-                      )}
-                    />
-                    <Skeleton
-                      className={cn(
-                        'w-1/4 h-[270px] flex-1',
-                        !dataIsLoading && 'animate-none'
-                      )}
-                    />
-                    <Skeleton
-                      className={cn(
-                        'w-1/4 h-[230px] flex-1',
-                        !dataIsLoading && 'animate-none'
-                      )}
-                    />
-                    <Skeleton
-                      className={cn(
-                        'w-1/4 h-[250px] flex-1',
-                        !dataIsLoading && 'animate-none'
-                      )}
-                    />
-                    <Skeleton
-                      className={cn(
-                        'w-1/4 h-[280px] flex-1',
-                        !dataIsLoading && 'animate-none'
-                      )}
-                    />
-                  </div>
-                </div>
+                <ElementPlaceholder loading={dataIsLoading} />
               ) : null}
             </ScrollArea>
 
@@ -358,7 +439,7 @@ export default function AddElement({ dashboardId }: Props) {
                     </AccordionItem>
                   </Accordion>
                 </div>
-                <form action={bound_addElementToDashboard}>
+                <form action={handleAddElementToDashboard_formAction}>
                   <input
                     name='query'
                     readOnly
@@ -377,13 +458,35 @@ export default function AddElement({ dashboardId }: Props) {
                     hidden
                     value={elementType.toString()}
                   />
-                  <div className='flex w-full gap-4 pl-2 pr-4'>
-                    <Input
-                      name='name'
-                      required
-                      placeholder='Elemente bir isim verin.'
-                    />
-                    <Button type='submit'>{`Dashboard'a Ekle`}</Button>
+                  <div className='flex flex-col gap-2 pr-4 pl-2'>
+                    <div className='flex w-full gap-4'>
+                      <Input
+                        name='name'
+                        ref={elementNameRef}
+                        required
+                        placeholder='Elemente bir isim verin.'
+                      />
+                      <SubmitButton className='w-40'>{`Dashboard'a Ekle`}</SubmitButton>
+                    </div>
+                    {showResponseMessage ? (
+                      <div
+                        className={cn(
+                          'flex items-center bg-slate-50 justify-center text-sm rounded-md py-2 px-4',
+                          {
+                            'text-red-700':
+                              !addElementToDashboard_formState.success,
+                            'bg-red-50':
+                              !addElementToDashboard_formState.success,
+                            'text-green-700':
+                              addElementToDashboard_formState.success,
+                            'bg-green-50':
+                              addElementToDashboard_formState.success,
+                          }
+                        )}
+                      >
+                        {addElementToDashboard_formState.message}
+                      </div>
+                    ) : null}
                   </div>
                 </form>
               </>

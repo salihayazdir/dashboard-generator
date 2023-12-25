@@ -35,8 +35,8 @@ export default async function Home() {
               Bir dashboard ekleyin.
             </h1>
             <AddDashboard size='lg'>
-              <PlusIcon className='mr-4 h-6 w-6' />
-              <span className='text-base'>Dashboard Ekle</span>
+              <PlusIcon className='mr-4 h-6 w-6 text-yesil' />
+              <span className='text-lg'>Dashboard Ekle</span>
             </AddDashboard>
           </>
         ) : (
@@ -46,8 +46,8 @@ export default async function Home() {
             </h1>
             <Link href='/veri-kaynaklari'>
               <Button size='lg'>
-                <span className='text-base'>Veri Kaynakları</span>
-                <ArrowRightIcon className='ml-4 h-6 w-6' />
+                <span className='text-lg'>Veri Kaynakları</span>
+                <ArrowRightIcon className='ml-4 h-6 w-6 text-yesil' />
               </Button>
             </Link>
           </>
