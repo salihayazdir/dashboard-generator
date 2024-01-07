@@ -1,5 +1,5 @@
 'use client';
-
+import { Fingerprint, Key, KeyRound, KeySquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { MixerHorizontalIcon } from '@radix-ui/react-icons';
+import { MixerHorizontalIcon, TableIcon } from '@radix-ui/react-icons';
 import { Label } from '../ui/label';
 import React, { useEffect, useState } from 'react';
 import { cn, isJsonString } from '@/lib/utils';
@@ -28,6 +28,15 @@ import useUpdateDbSchema from '../UpdateDbSchema';
 import { editDataSource } from '@/actions/editDataSource';
 import { deleteDataSource } from '@/actions/deleteDataSource';
 
+export type DatabaseSchema = {
+  table_name: string;
+  column_name: string;
+  data_type: string;
+  is_primary_key: boolean;
+  is_referencing: boolean;
+  foreign_table_name: string | null;
+}[];
+
 type Props = {
   dataSource: DataSource;
 };
@@ -40,14 +49,11 @@ export default function DataSourceSettings({ dataSource }: Props) {
   const { UpdateDbSchemaButton, dbSchemaState, setDbSchemaState } =
     useUpdateDbSchema({ dataSource });
 
-  const dataBaseSchema: {
-    table_name: string;
-    column_name: string;
-    data_type: string;
-  }[] =
+  const dataBaseSchema: DatabaseSchema =
     dataSource.schema && isJsonString(dataSource.schema)
       ? JSON.parse(dataSource.schema)
       : null;
+  console.log(dataBaseSchema);
 
   // UPDATE FORM STATE
   const initialFormState = {
@@ -104,7 +110,7 @@ export default function DataSourceSettings({ dataSource }: Props) {
             <MixerHorizontalIcon className='w-4 h-4' />
           </Button>
         </DialogTrigger>
-        <DialogContent className='sm:max-w-[450px]'>
+        <DialogContent className='sm:max-w-[550px]'>
           <DialogHeader>
             <DialogTitle>Veri Kaynağını Düzenle</DialogTitle>
             <DialogDescription>
@@ -145,7 +151,7 @@ export default function DataSourceSettings({ dataSource }: Props) {
               </div>
 
               <div className='flex flex-col gap-2'>
-                <Label>Veri Tabanı Şeması</Label>
+                <Label>Veritabanı Şeması</Label>
                 {dataBaseSchema ? (
                   <Accordion
                     type='multiple'
@@ -160,16 +166,46 @@ export default function DataSourceSettings({ dataSource }: Props) {
                         <AccordionTrigger className='py-2'>
                           {table}
                         </AccordionTrigger>
-                        <AccordionContent className='text-xs pt-1 text-slate-700 flex flex-col gap-2'>
+                        <AccordionContent className=' pt-1 text-slate-700 flex flex-col gap-2'>
                           {dataBaseSchema
                             .filter((column) => column.table_name === table)
+                            .sort(
+                              (a, b) =>
+                                Number(b.is_primary_key) -
+                                Number(a.is_primary_key)
+                            )
                             .map((column, i) => (
                               <div
                                 key={`${column}_${table}_${i}`}
-                                className='flex items-center'
+                                className='flex items-center gap-3 '
                               >
-                                {`${column.column_name}`}
-                                <span className='bg-slate-100 rounded-md tracking-tight text-slate-500 semibold px-2 py-0.5 ml-2'>
+                                <div
+                                  className={cn(
+                                    'font-medium',
+                                    column.is_primary_key &&
+                                      'text-white px-2 py-0.5 bg-green-700 rounded-md font-semibold flex items-center gap-2'
+                                  )}
+                                >
+                                  <KeyRound
+                                    strokeWidth={1}
+                                    className={cn('w-4 h-4', {
+                                      hidden: !column.is_primary_key,
+                                    })}
+                                  />
+                                  {`${column.column_name}`}
+                                </div>
+                                <div
+                                  className={cn(
+                                    'text-white px-2 py-0.5 bg-indigo-700 rounded-md font-semibold flex items-center gap-2',
+                                    {
+                                      hidden: !column.is_referencing,
+                                    }
+                                  )}
+                                >
+                                  <TableIcon className={cn('w-4 h-4')} />
+                                  {column.foreign_table_name}
+                                </div>
+                                <span className='bg-slate-100 rounded-md tracking-tight text-slate-500 semibold px-2 py-0.5'>
                                   {column.data_type}
                                 </span>
                               </div>

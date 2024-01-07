@@ -277,7 +277,7 @@ export default function AddElement({
                   required
                   minLength={10}
                   placeholder={
-                    chatMessages.length > 0 ? 'Bir düzenleme önerin.' : ''
+                    chatMessages.length > 0 ? 'Bir düzenleme isteyin.' : ''
                   }
                   rows={chatMessages.length > 0 ? 2 : 4}
                 />

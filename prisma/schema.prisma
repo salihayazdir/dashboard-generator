@@ -38,6 +38,7 @@ model DashboardElement {
   fields      String?
   widht       Int       @default(1)
   height      Int       @default(1)
+  sortOrder   Int       
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   dashboard   Dashboard @relation(fields: [dashboardId], references: [id],  onDelete: Cascade)
