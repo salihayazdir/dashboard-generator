@@ -25,6 +25,7 @@ model Dashboard {
   updatedAt DateTime  @updatedAt
   owner     User      @relation(fields: [ownerId], references: [id])
   ownerId   Int
+  elementOrder String?
   elements  DashboardElement[]
   dataSource DataSource  @relation(fields: [dataSourceId], references: [id])
   dataSourceId Int
@@ -38,7 +39,6 @@ model DashboardElement {
   fields      String?
   widht       Int       @default(1)
   height      Int       @default(1)
-  sortOrder   Int       
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   dashboard   Dashboard @relation(fields: [dashboardId], references: [id],  onDelete: Cascade)
