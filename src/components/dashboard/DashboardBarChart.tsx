@@ -17,6 +17,16 @@ export default function DashboardBarChart({ data }: Props) {
     return acc;
   }, [] as string[]);
 
+  const maxValue = Math.max(
+    ...data
+      .map((item) => {
+        return categories.map((category: string) =>
+          parseFloat(item[category] as string)
+        );
+      })
+      .flat()
+  );
+
   return (
     <BarChart
       className=''
@@ -26,6 +36,7 @@ export default function DashboardBarChart({ data }: Props) {
       colors={['blue']}
       valueFormatter={valueFormatter}
       yAxisWidth={50}
+      maxValue={maxValue}
     />
   );
 }

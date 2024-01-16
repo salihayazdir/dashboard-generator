@@ -17,6 +17,16 @@ export default function DashboardLineChart({ data }: Props) {
     return acc;
   }, [] as string[]);
 
+  const maxValue = Math.max(
+    ...data
+      .map((item) => {
+        return categories.map((category: string) =>
+          parseFloat(item[category] as string)
+        );
+      })
+      .flat()
+  );
+
   return (
     <LineChart
       className=''
@@ -26,6 +36,7 @@ export default function DashboardLineChart({ data }: Props) {
       colors={['blue']}
       valueFormatter={valueFormatter}
       yAxisWidth={48}
+      maxValue={maxValue}
     />
   );
 }
