@@ -5,6 +5,7 @@ import DashboardElement from '@/components/dashboard/DashboardElement';
 import AddElement from '@/components/dialog/AddElement';
 import DashboardSettings from '@/components/dialog/DashboardSettings';
 import { prisma } from '@/lib/prisma';
+import { cn } from '@/lib/utils';
 import { PlusIcon } from '@radix-ui/react-icons';
 import { getServerSession } from 'next-auth';
 
@@ -65,7 +66,9 @@ export default async function Dashboard({
           {elements.length > 0 ? (
             <div className='p-8 gap-8 grid md:grid-cols-2 lg:grid-cols-3 items-start'>
               {elements.map((element) => (
-                <DashboardElement key={element.id} element={element} />
+                <div key={element.id} className={`col-span-${element.widht}`}>
+                  <DashboardElement element={element} />
+                </div>
               ))}
             </div>
           ) : (

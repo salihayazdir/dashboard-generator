@@ -32,7 +32,7 @@ type Fields = {
 }[];
 
 export default function DashboardElementSettings({
-  element: { id, name, query, dashboardId, type, fields: initialFields },
+  element: { id, name, query, dashboardId, type, widht, fields: initialFields },
 }: Props) {
   const [open, setOpen] = useState(false);
   const [fields, setFields] = useState<Fields>(
@@ -40,6 +40,7 @@ export default function DashboardElementSettings({
   );
 
   const nameRef = React.useRef<HTMLInputElement>(null);
+  const widhtRef = React.useRef<HTMLInputElement>(null);
 
   // UPDATE FORM STATE
   const initialFormState = {
@@ -107,7 +108,7 @@ export default function DashboardElementSettings({
           <DialogDescription>Elementi düzenleyin</DialogDescription>
         </DialogHeader>
         <div className='flex flex-col gap-4 pt-4'>
-          <form action={formAction} className='flex flex-col gap-8'>
+          <form action={formAction} className='flex flex-col gap-6'>
             <div className=''>
               <Label htmlFor='name'>İsim</Label>
               <Input defaultValue={name} ref={nameRef} id='name' name='name' />
@@ -168,6 +169,18 @@ export default function DashboardElementSettings({
                   );
                 })}
               </div>
+            </div>
+            <div className=''>
+              <Label htmlFor='widht'>Genişlik</Label>
+              <Input
+                defaultValue={widht}
+                ref={widhtRef}
+                id='widht'
+                name='widht'
+                type='number'
+                min={0}
+                max={3}
+              />
             </div>
             <div className='flex flex-col gap-2'>
               <SubmitButton>Kaydet</SubmitButton>

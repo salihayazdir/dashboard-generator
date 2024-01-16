@@ -28,7 +28,7 @@ export default async function Home() {
 
   return (
     <>
-      <div className='min-h-screen flex items-center flex-col px-10 py-20 gap-6'>
+      <div className='h-full flex items-center flex-col px-10 py-20 gap-6'>
         {dataSources.length > 0 ? (
           <>
             <h1 className='text-xl font-medium text-gray-800'>

@@ -5,6 +5,7 @@ import { executeQueryOnDataSource } from '@/lib/executeQueryOnDataSource';
 import { prisma } from '@/lib/prisma';
 import ElementPlaceholder from '../placeholder/ElementPlaceholder';
 import { CrossCircledIcon } from '@radix-ui/react-icons';
+import { cn } from '@/lib/utils';
 
 type Props = {
   element: DashboardElement;
@@ -53,7 +54,12 @@ export default async function DashboardElement({ element }: Props) {
     };
 
     return (
-      <div className='bg-white border rounded-lg border-slate-200'>
+      <div
+        className={cn(
+          'bg-white border rounded-lg border-slate-200 col-span-2',
+          `col-span-[${element.widht}]`
+        )}
+      >
         <div className='flex items-center justify-between py-1 pl-4 pr-1 text-sm border-b border-slate-200'>
           <h2>{name}</h2>
           <DashboardElementSettings element={element} />

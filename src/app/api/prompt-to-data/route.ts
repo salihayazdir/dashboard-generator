@@ -60,7 +60,10 @@ export async function POST(req: Request) {
   } catch (err: any) {
     console.log(err);
     return NextResponse.json(
-      { error: err?.message, query: '' },
+      {
+        error: err?.message ? err?.message : 'Bir hata meydana geldi.',
+        query: '',
+      },
       { status: 400 }
     );
   }

@@ -20,6 +20,7 @@ export const editDashboardElement = async (
       },
       data: {
         name: formData.get('name') as string,
+        widht: parseInt(formData.get('widht') as string),
         fields: formData.get('fields') as string,
       },
     });
